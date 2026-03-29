@@ -20,4 +20,6 @@ Thumbs.db
 *.swp
 *.swo
 
+.qwen/
+
 coverage/
