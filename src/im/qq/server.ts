@@ -1,5 +1,6 @@
 import "dotenv/config";
-import { chat, type Message } from "../../llm.js";
+import { chatWithTools, type Message } from "../../llm.js";
+import "../../tools/datetime.js";
 import { loadSession, saveSession } from "../../session.js";
 import { subscribe, unsubscribe } from "../../stores/subscribers.js";
 import { startScheduler } from "../../tasks/scheduler.js";
@@ -40,12 +41,12 @@ async function main() {
         {
           role: "system",
           content:
-            "你是一个聪明、友善的 AI 助手，名字叫 AnAgent。你会用中文简洁地回答用户的问题，不废话，不重复用户说的内容。" ,
+            "你是一个聪明、友善的 AI 助手，名字叫 AnAgent。你会用中文简洁地回答用户的问题，不废话，不重复用户说的内容。",
         },
         ...trimmedHistory,
         { role: "user", content: text },
       ];
-      const assistantText = await chat(chatMessages);
+      const assistantText = await chatWithTools(chatMessages);
       await saveSession(userOpenid, [
         { role: "user", content: text },
         { role: "assistant", content: assistantText },
