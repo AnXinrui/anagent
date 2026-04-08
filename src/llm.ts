@@ -10,13 +10,6 @@ const openai = new OpenAI({
   baseURL: process.env.BASE_URL,
 });
 
-registerTool({
-  name: 'get_current_time',
-  description: '获取当前时间',
-  parameters: { type: 'object', properties: {} },
-  execute: async () => new Date().toLocaleString('zh-CN'),
-});
-
 export async function chat(
   messages: Message[],
   onChunk?: (chunk: string) => void,
@@ -57,7 +50,6 @@ export async function chatWithTools(
     },
   }));
 
-  console.log(openAITools)
   const history: Message[] = [...messages];
 
   for (let i = 0; i < 10; i++) {
@@ -71,6 +63,8 @@ export async function chatWithTools(
     if (!choice) {
       throw new Error("No choice returned from OpenAI");
     }
+
+    // console.log(choice)
 
     const message = choice.message;
 
