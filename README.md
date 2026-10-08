@@ -25,7 +25,7 @@ bun install
 **命令行对话**（默认会话 id 为 `default`，历史在 `sessions/default.jsonl`）：
 
 ```bash
-bun src/index.ts "你好"
+bun src/main.ts "你好"
 ```
 
 也可以：
@@ -37,7 +37,7 @@ bun run start "你好"
 指定会话 id（多账号/多会话隔离）：
 
 ```bash
-bun src/index.ts "你好" my-user
+bun src/main.ts "你好" my-user
 ```
 
 **QQ 私聊机器人**（需配置 `QQ_*` 并开通单聊消息权限）：
