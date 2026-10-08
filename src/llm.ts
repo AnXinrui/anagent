@@ -1,4 +1,3 @@
-import "dotenv/config";
 import { OpenAI } from "openai";
 import type { ChatCompletionMessageParam } from "openai/resources/chat/completions";
 import { getAllTools, getTool, registerTool } from "./tools/registry";
@@ -16,7 +15,7 @@ export async function chat(
 ) {
   try {
     const stream = await openai.chat.completions.create({
-      model: "gpt-5-mini",
+      model: process.env.MODEL || "gpt-5-mini",
       messages,
       stream: true,
     });

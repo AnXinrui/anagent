@@ -1,4 +1,3 @@
-import "dotenv/config";
 import { chatWithTools, type Message } from "../../llm.js";
 import "../../tools/datetime.js";
 import { loadSession, saveSession } from "../../session.js";

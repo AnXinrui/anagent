@@ -4,19 +4,20 @@
 
 ## 环境
 
-- Node.js 20+
-- 复制 `.env` 示例并填写：
+- [Bun](https://bun.sh) 1.3+
+- 复制 `.env.example` 为 `.env` 并填写。Bun 启动时会自动读取项目根目录的 `.env`
 
 | 变量 | 说明 |
 |------|------|
 | `API_KEY` | 大模型 API Key |
 | `BASE_URL` | API 地址（如 `https://api.xxx/v1`） |
+| `MODEL` | 模型名，不填时命令行对话默认 `gpt-5-mini` |
 | `QQ_APP_ID` / `QQ_CLIENT_SECRET` | 仅跑 QQ 时需要，在 QQ 开放平台创建机器人后获取 |
 
 ## 安装
 
 ```bash
-npm install
+bun install
 ```
 
 ## 运行方式
@@ -24,19 +25,25 @@ npm install
 **命令行对话**（默认会话 id 为 `default`，历史在 `sessions/default.jsonl`）：
 
 ```bash
-npx tsx src/index.ts "你好"
+bun src/index.ts "你好"
+```
+
+也可以：
+
+```bash
+bun run start "你好"
 ```
 
 指定会话 id（多账号/多会话隔离）：
 
 ```bash
-npx tsx src/index.ts "你好" my-user
+bun src/index.ts "你好" my-user
 ```
 
 **QQ 私聊机器人**（需配置 `QQ_*` 并开通单聊消息权限）：
 
 ```bash
-npm run qq
+bun run qq
 ```
 
 会话文件目录：`sessions/*.jsonl`。

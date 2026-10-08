@@ -5,7 +5,7 @@ async function main() {
   const userMessage = process.argv[2];
   if (!userMessage) {
     console.error("请提供消息内容");
-    console.error('使用方法: npx tsx src/index.ts "你的消息"');
+    console.error('使用方法: bun src/index.ts "你的消息"');
     process.exit(1);
   }
   const userId = process.argv[3] || 'default';

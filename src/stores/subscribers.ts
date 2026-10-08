@@ -6,7 +6,7 @@ import { mkdir, readFile, writeFile } from 'fs/promises';
 import path from 'path';
 
 /** 订阅列表文件的绝对路径（本文件在 src/stores，向上两级到项目根再进 data） */
-const SUBSCRIBERS_FILE = path.join(__dirname, '..', '..', 'data', 'subscribers.json');
+const SUBSCRIBERS_FILE = path.join(import.meta.dir, '..', '..', 'data', 'subscribers.json');
 
 /**
  * 从磁盘读取当前订阅 openid 列表；文件不存在或内容非法时视为空列表。
