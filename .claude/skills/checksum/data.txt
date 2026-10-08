@@ -1,0 +1,12 @@
+// skillName = apple
+// skillDir = ".claude/skills/apple"
+// skillBody = 从 SKILL.md 读取的正文
+
+const wrappedBody = `Skill: ${skillName} (located at ${skillDir})
+Paths in the instructions below are relative to that folder.
+
+${skillBody}`;
+
+messages.push({
+  role: "user",
+  content: wrappedBody
