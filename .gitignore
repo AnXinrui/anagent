@@ -22,4 +22,6 @@ Thumbs.db
 
 .qwen/
 
+data/
+
 coverage/
