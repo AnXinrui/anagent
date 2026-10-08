@@ -1,7 +1,6 @@
 import { afterEach, beforeEach, describe, expect, mock, spyOn, test } from "bun:test";
 import type OpenAI from "openai";
 import type { ChatCompletionMessageParam } from "openai/resources/chat/completions";
-import { chat } from "../src/agent/chat";
 import { runLoop } from "../src/agent/loop";
 import { registerTool } from "../src/tools/registry";
 
@@ -43,37 +42,6 @@ afterEach(() => {
   } else {
     process.env.MODEL = originalModel;
   }
-});
-
-describe("普通对话行为基线", () => {
-  test("请求 11 次并返回最后一次响应，使用原默认模型", async () => {
-    let count = 0;
-    create.mockImplementation(async () => completion(String(++count)));
-    const messages: ChatCompletionMessageParam[] = [{ role: "user", content: "你好" }];
-    expect((await chat(client, messages)).content).toBe("11");
-    expect(create).toHaveBeenCalledTimes(11);
-    for (const [request] of create.mock.calls) {
-      expect(request).toEqual({ model: "gpt-3.5-turbo", messages });
-    }
-  });
-
-  test("使用 MODEL 环境变量", async () => {
-    process.env.MODEL = "custom-model";
-    await chat(client, []);
-    expect(create.mock.calls[0]?.[0].model).toBe("custom-model");
-  });
-
-  test("前十次响应缺失时立即抛错", async () => {
-    create.mockResolvedValueOnce({ choices: [] });
-    await expect(chat(client, [])).rejects.toThrow("no choices in response");
-    expect(create).toHaveBeenCalledTimes(1);
-  });
-
-  test("第十一次响应缺失保留原错误文本", async () => {
-    let count = 0;
-    create.mockImplementation(async () => ++count === 11 ? { choices: [] } : completion("回复"));
-    await expect(chat(client, [])).rejects.toThrow("OpenAI 返回空 choices");
-  });
 });
 
 describe("工具循环行为基线", () => {

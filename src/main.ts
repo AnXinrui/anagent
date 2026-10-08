@@ -1,11 +1,12 @@
 import type { ChatCompletionMessageParam } from "openai/resources/chat/completions";
-import { chat } from "./agent/chat";
 import { client } from "./agent/client";
+import { runLoop, TOOL_MODEL } from "./agent/loop";
 import { appendSession, loadSession } from "./storage/session";
+import { registerDefaultTools } from "./tools/defaults";
 
 const DEFAULT_USER_ID = "default";
 
-/** 执行一轮命令行对话，输出回复并追加保存用户会话。 */
+/** 执行一轮命令行对话（带工具调用），输出回复并追加保存用户会话。 */
 async function main(): Promise<void> {
   const userMessage = process.argv[2];
   if (!userMessage) {
@@ -15,6 +16,7 @@ async function main(): Promise<void> {
   }
 
   const userId = process.argv[3] || DEFAULT_USER_ID;
+  registerDefaultTools();
   try {
     console.log(`📚 加载用户 ${userId} 的会话历史...`);
     const history = await loadSession(userId);
@@ -25,12 +27,12 @@ async function main(): Promise<void> {
       { role: "user", content: userMessage },
     ];
 
-    const reply = await chat(client, messages);
+    const reply = await runLoop(client, messages, process.env.MODEL?.trim() || TOOL_MODEL);
     const newMessages: ChatCompletionMessageParam[] = [
       { role: "user", content: userMessage },
-      { role: "assistant", content: reply.content },
+      { role: "assistant", content: reply },
     ];
-    console.log(reply.content);
+    console.log(reply);
 
     await appendSession(userId, newMessages);
     const totalMessages = history.length + 2;

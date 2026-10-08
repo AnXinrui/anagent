@@ -1,9 +1,4 @@
-import { currentDateTimeTool } from "../tools/getCurrentDateTime";
-import { skillTool } from "../tools/loadSkill";
-import { readFileTool } from "../tools/readFile";
-import { registerTool } from "../tools/registry";
-import { runCommandTool } from "../tools/runCommand";
-import { writeFileTool } from "../tools/writeFile";
+import { registerDefaultTools } from "../tools/defaults";
 import { startWeatherSchedule } from "../weather/schedule";
 import { startQQBot } from "./bot";
 import { handleMessage } from "./handleMessage";
@@ -19,11 +14,7 @@ async function main(): Promise<void> {
     process.exit(1);
   }
 
-  registerTool(currentDateTimeTool);
-  registerTool(readFileTool);
-  registerTool(writeFileTool);
-  registerTool(runCommandTool);
-  registerTool(skillTool);
+  registerDefaultTools();
   console.log("[qq] 启动中，AppID:", appId);
   startWeatherSchedule({ appId, clientSecret, city: WEATHER_CITY });
   await startQQBot({ appId, clientSecret, onMessage: handleMessage });

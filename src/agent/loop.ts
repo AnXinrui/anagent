@@ -2,20 +2,21 @@ import type OpenAI from "openai";
 import type { ChatCompletionMessageParam } from "openai/resources/chat/completions";
 import { getTool, listOpenAITools } from "../tools/registry";
 
-const TOOL_MODEL = "gpt-5-mini";
+export const TOOL_MODEL = "gpt-5-mini";
 const MAX_TOOL_TURNS = 10;
 
-/** 交替执行模型推理和工具调用；工具报错作为结果回传给模型，返回最终文本且不修改传入的消息数组。 */
+/** 交替执行模型推理和工具调用；工具报错作为结果回传给模型，返回最终文本且不修改传入的消息数组；模型默认使用 TOOL_MODEL，可由调用方覆盖。 */
 export async function runLoop(
   client: OpenAI,
   messages: ChatCompletionMessageParam[],
+  model: string = TOOL_MODEL,
 ): Promise<string> {
   const tools = listOpenAITools();
   const history: ChatCompletionMessageParam[] = [...messages];
 
   for (let turn = 0; turn < MAX_TOOL_TURNS; turn++) {
     const response = await client.chat.completions.create({
-      model: TOOL_MODEL,
+      model,
       messages: history,
       tools,
     });

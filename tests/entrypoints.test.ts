@@ -9,20 +9,22 @@ const history: ChatCompletionMessageParam[] = [
 const client = {};
 const loadSession = mock(async (_userId: string) => [...history]);
 const appendSession = mock(async (_userId: string, _messages: ChatCompletionMessageParam[]) => undefined);
-const chat = mock(async (_client: unknown, _messages: ChatCompletionMessageParam[]) => ({ content: "模型回复" }));
+const toolModel = "gpt-5-mini";
+const runLoop = mock(async (_client: unknown, _messages: ChatCompletionMessageParam[], _model?: string) => "模型回复");
 mock.module("../src/agent/client", () => ({ client }));
-mock.module("../src/agent/chat", () => ({ chat }));
+mock.module("../src/agent/loop", () => ({ runLoop, TOOL_MODEL: toolModel }));
 mock.module("../src/storage/session", () => ({ loadSession, appendSession }));
 
 afterEach(() => {
   mock.restore();
   loadSession.mockClear();
   appendSession.mockClear();
-  chat.mockClear();
+  runLoop.mockClear();
 });
 
 test.each(["default", "custom-user"])("CLI 对话和保存顺序保持一致：%s", async (userId) => {
   const originalArgs = process.argv;
+  delete process.env.MODEL;
   process.argv = [process.execPath, "src/main.ts", "你好"];
   if (userId !== "default") {
     process.argv.push(userId);
@@ -39,7 +41,7 @@ test.each(["default", "custom-user"])("CLI 对话和保存顺序保持一致：%
     await import(`../src/main.ts?case=${userId}`);
     await completed.promise;
     expect(loadSession).toHaveBeenCalledWith(userId);
-    expect(chat).toHaveBeenCalledWith(client, [...history, { role: "user", content: "你好" }]);
+    expect(runLoop).toHaveBeenCalledWith(client, [...history, { role: "user", content: "你好" }], toolModel);
     expect(appendSession).toHaveBeenCalledWith(userId, [
       { role: "user", content: "你好" },
       { role: "assistant", content: "模型回复" },
@@ -51,9 +53,43 @@ test.each(["default", "custom-user"])("CLI 对话和保存顺序保持一致：%
       ["📊 会话统计: 总共 4 条消息\n"],
     ]);
     expect(log.mock.invocationCallOrder[2]!).toBeLessThan(appendSession.mock.invocationCallOrder[0]!);
-    expect(listOpenAITools()).toEqual([]);
+    expect(listOpenAITools().map((tool) => tool.function.name)).toEqual([
+      "get_current_datetime",
+      "readFileContent",
+      "writeFile",
+      "runCommand",
+      "Skill",
+    ]);
   } finally {
     process.argv = originalArgs;
+  }
+});
+
+test("CLI 使用 MODEL 环境变量覆盖工具循环模型", async () => {
+  const caseId = "model-override";
+  const originalArgs = process.argv;
+  const originalModel = process.env.MODEL;
+  process.env.MODEL = "cli-custom-model";
+  process.argv = [process.execPath, "src/main.ts", "你好"];
+  const completed = Promise.withResolvers<void>();
+  const log = spyOn(console, "log").mockImplementation((...args: unknown[]) => {
+    if (String(args[0]).startsWith("📊")) {
+      completed.resolve();
+    }
+  });
+
+  try {
+    // 独立模块 URL 让入口读取覆盖后的 MODEL 重新执行，依赖仍使用同一组替身。
+    await import(`../src/main.ts?case=${caseId}`);
+    await completed.promise;
+    expect(runLoop).toHaveBeenCalledWith(client, [...history, { role: "user", content: "你好" }], "cli-custom-model");
+  } finally {
+    process.argv = originalArgs;
+    if (originalModel === undefined) {
+      delete process.env.MODEL;
+    } else {
+      process.env.MODEL = originalModel;
+    }
   }
 });
 
