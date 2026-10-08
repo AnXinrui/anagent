@@ -53,6 +53,7 @@ test("不存在的会话返回空数组，坏行跳过而非丢失其余历史",
   files.set(sessionPath, '\n{"role":"user","content":"保留"}\ninvalid-json\n   \n');
   expect(await loadSession("test-user")).toEqual([{ role: "user", content: "保留" }]);
   expect(console.error).toHaveBeenCalledTimes(1);
+  expect(console.error).toHaveBeenCalledWith(expect.stringContaining("已跳过该行"));
 });
 
 test("会话读取错误记录后返回空数组，写入错误向外抛出", async () => {

@@ -31,9 +31,9 @@ export async function loadSession(userId: string): Promise<ChatCompletionMessage
     for (const line of lines) {
       try {
         messages.push(JSON.parse(line) as ChatCompletionMessageParam);
-      } catch (error) {
-        // 跳过损坏行，保留其余可读取的历史消息。
-        console.error(`解析 JSON 失败: ${line}`, error);
+      } catch {
+        // 跳过损坏行，保留其余可读取的历史消息；只截取行首，避免整行刷屏。
+        console.error(`解析 JSON 失败，已跳过该行: ${line.slice(0, 120)}`);
       }
     }
     return messages;
