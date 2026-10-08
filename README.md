@@ -11,7 +11,7 @@
 |------|------|
 | `API_KEY` | 大模型 API Key |
 | `BASE_URL` | API 地址（如 `https://api.xxx/v1`） |
-| `MODEL` | 命令行对话模型，不填或为空时默认 `gpt-5-mini`（需支持工具调用）；QQ 对话固定使用 `gpt-5-mini` |
+| `MODEL` | 对话模型（命令行与 QQ 共用），不填或为空时默认 `gpt-5-mini`（需支持工具调用） |
 | `QQ_APP_ID` / `QQ_CLIENT_SECRET` | 仅跑 QQ 时需要，在 QQ 开放平台创建机器人后获取 |
 
 ## 安装

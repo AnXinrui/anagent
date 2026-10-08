@@ -88,12 +88,12 @@ describe("工具循环行为基线", () => {
     });
   });
 
-  test("固定模型且十轮后抛出原错误", async () => {
-    process.env.MODEL = "ignored-model";
+  test("遵循 MODEL 环境变量，十轮后抛出原错误", async () => {
+    process.env.MODEL = "env-model";
     create.mockImplementation(async () => toolCompletion("missing"));
     await expect(runLoop(client, [])).rejects.toThrow("Tool call loop exceeded 10 iterations");
     expect(create).toHaveBeenCalledTimes(10);
-    expect(create.mock.calls.every(([request]) => request.model === "gpt-5-mini")).toBe(true);
+    expect(create.mock.calls.every(([request]) => request.model === "env-model")).toBe(true);
   });
 
   test("空 choices 抛错，空内容返回空字符串", async () => {

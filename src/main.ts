@@ -1,6 +1,6 @@
 import type { ChatCompletionMessageParam } from "openai/resources/chat/completions";
 import { client } from "./agent/client";
-import { runLoop, TOOL_MODEL } from "./agent/loop";
+import { runLoop } from "./agent/loop";
 import { appendSession, loadSession } from "./storage/session";
 import { registerDefaultTools } from "./tools/defaults";
 
@@ -27,7 +27,7 @@ async function main(): Promise<void> {
       { role: "user", content: userMessage },
     ];
 
-    const reply = await runLoop(client, messages, process.env.MODEL?.trim() || TOOL_MODEL);
+    const reply = await runLoop(client, messages);
     const newMessages: ChatCompletionMessageParam[] = [
       { role: "user", content: userMessage },
       { role: "assistant", content: reply },
